@@ -24,6 +24,14 @@ def authenticate_employee(credentials: HTTPBasicCredentials):
 
 
 def verify_token(token: Optional[str] = None, username: Optional[str] = Depends(authenticate_employee)):
-    decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-
+    if not token:
+        raise HTTPException(status_code=400, detail="Token is missing")
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        if decoded_token["username"] != username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        if datetime.fromisoformat(decoded_token["expires"]) < datetime.utcnow():
+            raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.exceptions.DecodeError:
+        raise HTTPException(status_code=401, detail="Invalid token")
     return decoded_token
