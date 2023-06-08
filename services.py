@@ -8,8 +8,9 @@ from fastapi.security import HTTPBasicCredentials
 from database import employees
 from config import SECRET_KEY
 
+
 def generate_token(username: str):
-    expiration_time = str(datetime.utcnow() + timedelta(minutes=30)) # токен действует 30 минут
+    expiration_time = str(datetime.utcnow() + timedelta(minutes=20))  # токен действует 20 минут
     print(expiration_time)
     token = {"username": username, "expires": expiration_time}
     return token

@@ -6,7 +6,10 @@ from config import SECRET_KEY
 from services import authenticate_employee, generate_token, verify_token
 from database import employees
 
+from dto import User as UserDTO
+
 router = APIRouter()
+
 
 @router.post("/get_token")
 async def login(credentials: HTTPBasicCredentials):
@@ -16,9 +19,12 @@ async def login(credentials: HTTPBasicCredentials):
 
 
 @router.post("/salary")
-async def get_salary(token: str = Depends(verify_token)):
-    username = token["username"]
+async def get_salary(data: UserDTO = None):
+    token = data.token
+    username = data.name
+    decoded_token = verify_token(token=token, username=username)
+    name = decoded_token["username"]
     return {
-        "salary": employees[username]["salary"],
-        "next_raise": employees[username]["next_raise"]
+        "salary": employees[name]["salary"],
+        "next_raise": employees[name]["next_raise"]
     }
